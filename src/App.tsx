@@ -160,9 +160,9 @@ export function App() {
         onResetAllData={handleResetAllData}
       />
 
-      <main className="main-layout-grid w-full max-w-full overflow-x-hidden">
+      <main className="main-layout-grid w-full max-w-full">
         {/* Left Side Configurable Settings Panel (Desktop >1024px) */}
-        <div className="hidden lg:block">
+        <div className="hidden lg:block sidebar-wrapper">
           <Sidebar
             profiles={profiles}
             activeProfile={activeProfile}
@@ -176,7 +176,7 @@ export function App() {
         </div>
 
         {/* Right Side Interactive Calendar & Bottom Statistics */}
-        <div className="w-full max-w-full px-4 sm:px-6 py-4 space-y-4 box-border overflow-x-hidden">
+        <div className="right-column-wrapper w-full max-w-full px-4 sm:px-6 py-4 space-y-4 box-border">
           <CalendarGrid
             currentDate={currentDate}
             onCurrentDateChange={setCurrentDate}
