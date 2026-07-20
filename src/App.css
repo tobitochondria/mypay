@@ -19,6 +19,13 @@
   max-width: 100%;
   min-height: calc(100vh - 56px);
   box-sizing: border-box;
+  align-items: start;
+}
+
+.sidebar-container {
+  padding: 1.5rem 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 1023px) {
@@ -73,11 +80,12 @@
 .sidebar-container {
   background: var(--surface-white);
   border-right: 1px solid var(--border-color);
-  padding: 1.25rem;
+  padding: 1rem 1.25rem;
   overflow-y: auto;
   max-height: calc(100vh - 56px);
   position: sticky;
   top: 56px;
+  align-self: start;
 }
 
 .sidebar-header {

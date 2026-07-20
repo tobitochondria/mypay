@@ -119,16 +119,15 @@ export const Header: React.FC<Props> = ({
         />
 
         {/* Left: Brand Logo & Title */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-3 flex-shrink-0">
           <div className="brand-logo">
-            <img src="/MyPay.svg" alt="MyPay Logo" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+            <img src="/MyPay.svg" alt="MyPay Logo" style={{ width: 32, height: 32, objectFit: 'contain' }} />
           </div>
-          <div>
-            <h1 style={{ fontSize: '0.9375rem', fontWeight: 800, color: 'var(--foreground)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-              <span className="lg:hidden">MyPay</span>
-              <span className="hidden lg:inline">MyPay Calculator</span>
+          <div className="flex flex-col justify-center">
+            <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-tight">
+              MyPay Calculator
             </h1>
-            <p className="hidden lg:block" style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', fontWeight: 500, lineHeight: 1.3 }}>
+            <p className="text-xs text-slate-500 font-normal leading-tight">
               Personal Salary, Wage & Payday Tracker
             </p>
           </div>
