@@ -18,6 +18,7 @@ import type { PayPeriodFilter } from './components/Calendar/CalendarHeader';
 import { StatsSummary } from './components/Stats/StatsSummary';
 import { ExportModal } from './components/Export/ExportModal';
 import { getYear } from 'date-fns';
+import { SlidersHorizontal } from 'lucide-react';
 import './App.css';
 
 export function App() {
@@ -29,6 +30,7 @@ export function App() {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [periodFilter, setPeriodFilter] = useState<PayPeriodFilter>('all');
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
 
   // Daily logs for active profile
   const [logs, setLogs] = useState<Record<string, DailyLog>>(() => getStoredLogs(activeProfile.id));
@@ -150,7 +152,7 @@ export function App() {
   };
 
   return (
-    <div className="app-container">
+    <div className="app-container w-full max-w-full overflow-x-hidden">
       <Header
         activeProfile={activeProfile}
         onOpenExport={() => setShowExportModal(true)}
@@ -158,21 +160,23 @@ export function App() {
         onResetAllData={handleResetAllData}
       />
 
-      <main className="main-layout-grid">
-        {/* Left Side Configurable Settings Panel */}
-        <Sidebar
-          profiles={profiles}
-          activeProfile={activeProfile}
-          onSelectProfile={handleSelectProfile}
-          onAddProfile={handleAddProfile}
-          onUpdateProfile={handleUpdateProfile}
-          onDeleteProfile={handleDeleteProfile}
-          autoHolidays={autoHolidays}
-          onResetAllData={handleResetAllData}
-        />
+      <main className="main-layout-grid w-full max-w-full overflow-x-hidden">
+        {/* Left Side Configurable Settings Panel (Desktop >1024px) */}
+        <div className="hidden lg:block">
+          <Sidebar
+            profiles={profiles}
+            activeProfile={activeProfile}
+            onSelectProfile={handleSelectProfile}
+            onAddProfile={handleAddProfile}
+            onUpdateProfile={handleUpdateProfile}
+            onDeleteProfile={handleDeleteProfile}
+            autoHolidays={autoHolidays}
+            onResetAllData={handleResetAllData}
+          />
+        </div>
 
         {/* Right Side Interactive Calendar & Bottom Statistics */}
-        <div className="space-y-4" style={{ padding: '1.25rem' }}>
+        <div className="w-full max-w-full px-4 sm:px-6 py-4 space-y-4 box-border overflow-x-hidden">
           <CalendarGrid
             currentDate={currentDate}
             onCurrentDateChange={setCurrentDate}
@@ -195,6 +199,36 @@ export function App() {
         </div>
       </main>
 
+      {/* Floating Action Button for Mobile/Tablet Pay Configuration */}
+      <button
+        className="mobile-fab-btn tablet-only mobile-only"
+        onClick={() => setIsDrawerOpen(true)}
+        title="Open Pay Configuration"
+      >
+        <SlidersHorizontal size={18} />
+        <span>Configure Pay</span>
+      </button>
+
+      {/* Slide-out Drawer for Mobile/Tablet (<1024px) */}
+      {isDrawerOpen && (
+        <>
+          <div className="drawer-backdrop" onClick={() => setIsDrawerOpen(false)} />
+          <div className="drawer-content">
+            <Sidebar
+              profiles={profiles}
+              activeProfile={activeProfile}
+              onSelectProfile={handleSelectProfile}
+              onAddProfile={handleAddProfile}
+              onUpdateProfile={handleUpdateProfile}
+              onDeleteProfile={handleDeleteProfile}
+              autoHolidays={autoHolidays}
+              onResetAllData={handleResetAllData}
+              onCloseDrawer={() => setIsDrawerOpen(false)}
+            />
+          </div>
+        </>
+      )}
+
       {/* Export / Import & Print PDF Modal */}
       {showExportModal && (
         <ExportModal
@@ -213,3 +247,4 @@ export function App() {
 }
 
 export default App;
+

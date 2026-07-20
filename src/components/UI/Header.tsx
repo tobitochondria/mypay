@@ -109,25 +109,35 @@ export const Header: React.FC<Props> = ({
   return (
     <>
       <header className="app-header">
-        {/* Left: Brand */}
-        <div className="flex items-center gap-3">
+        {/* Hidden File Input for Data Import */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: 'none' }}
+          accept=".json"
+          onChange={handleFileChange}
+        />
+
+        {/* Left: Brand Logo & Title */}
+        <div className="flex items-center gap-2 flex-shrink-0">
           <div className="brand-logo">
-            <img src="/MyPay.svg" alt="MyPay Logo" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+            <img src="/MyPay.svg" alt="MyPay Logo" style={{ width: 28, height: 28, objectFit: 'contain' }} />
           </div>
           <div>
-            <h1 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--foreground)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-              MyPay Calculator
+            <h1 style={{ fontSize: '0.9375rem', fontWeight: 800, color: 'var(--foreground)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+              <span className="lg:hidden">MyPay</span>
+              <span className="hidden lg:inline">MyPay Calculator</span>
             </h1>
-            <p style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', fontWeight: 500, lineHeight: 1.3 }}>
+            <p className="hidden lg:block" style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', fontWeight: 500, lineHeight: 1.3 }}>
               Personal Salary, Wage & Payday Tracker
             </p>
           </div>
         </div>
 
-        {/* Right: Profile Pill + Actions */}
-        <div id="tour-import-export-actions" className="flex items-center gap-3">
+        {/* Right: Desktop Actions Container (hidden lg:flex) */}
+        <div id="tour-import-export-actions" className="hidden lg:flex items-center gap-3">
           {/* Active Profile Pill */}
-          <div className="active-profile-pill hidden sm:flex">
+          <div className="active-profile-pill">
             <Briefcase size={14} style={{ color: 'var(--primary)' }} />
             <span>{activeProfile.title}</span>
             {activeProfile.company && (
@@ -137,7 +147,7 @@ export const Header: React.FC<Props> = ({
 
           {/* Reset Data */}
           <button
-            className="btn btn-ghost"
+            className="btn btn-ghost touch-target"
             onClick={handleConfirmReset}
             title="Delete all stored profiles and logs"
             style={{ color: 'var(--danger)', fontWeight: 600, fontSize: '0.75rem', gap: '0.25rem' }}
@@ -148,28 +158,58 @@ export const Header: React.FC<Props> = ({
 
           {/* Import Data */}
           <button
-            className="btn btn-secondary btn-sm"
+            className="btn btn-secondary btn-sm touch-target"
             onClick={() => fileInputRef.current?.click()}
             title="Import data from a MyPay JSON backup file"
           >
             <Upload size={14} />
             <span>Import Data</span>
           </button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-            accept=".json"
-            onChange={handleFileChange}
-          />
 
           {/* Export Data */}
           <button
-            className="btn btn-primary btn-sm"
+            className="btn btn-primary btn-sm touch-target"
             onClick={onOpenExport}
           >
             <Download size={14} />
             <span>Export Data</span>
+          </button>
+        </div>
+
+        {/* Right: Mobile & Tablet Actions Container (flex lg:hidden) */}
+        <div className="flex lg:hidden items-center gap-1.5 sm:gap-2 flex-shrink-0">
+          {/* Active Profile Pill: Hidden in Mobile Portrait (<640px portrait), Shown in Landscape & Tablet */}
+          <div className="active-profile-pill hidden sm:flex portrait:hidden landscape:flex px-2.5 py-1 text-xs max-w-[140px] sm:max-w-[200px]">
+            <Briefcase size={13} style={{ color: 'var(--primary)' }} />
+            <span className="truncate">{activeProfile.title}</span>
+          </div>
+
+          {/* Standalone Action Icon Buttons */}
+          <button
+            className="btn btn-ghost touch-target p-2"
+            onClick={handleConfirmReset}
+            title="Reset All Data"
+            style={{ color: 'var(--danger)', minWidth: '44px', minHeight: '44px' }}
+          >
+            <RotateCcw size={16} />
+          </button>
+
+          <button
+            className="btn btn-secondary btn-sm touch-target p-2"
+            onClick={() => fileInputRef.current?.click()}
+            title="Import Data"
+            style={{ minWidth: '44px', minHeight: '44px' }}
+          >
+            <Upload size={16} />
+          </button>
+
+          <button
+            className="btn btn-primary btn-sm touch-target p-2"
+            onClick={onOpenExport}
+            title="Export Data"
+            style={{ minWidth: '44px', minHeight: '44px' }}
+          >
+            <Download size={16} />
           </button>
         </div>
       </header>
@@ -202,3 +242,4 @@ export const Header: React.FC<Props> = ({
     </>
   );
 };
+

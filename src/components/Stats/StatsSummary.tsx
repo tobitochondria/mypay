@@ -55,15 +55,15 @@ export const StatsSummary: React.FC<Props> = ({
   const sym = profile.currencySymbol || '₱';
 
   return (
-    <div id="tour-stats-summary" className="stats-summary-card">
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-border">
+    <div id="tour-stats-summary" className="stats-summary-card w-full max-w-full box-border p-3.5 sm:p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-border w-full">
         <div className="flex items-center gap-2">
           <TrendingUp size={18} className="icon-success" />
           <h3 className="font-bold text-base tracking-tight">Earnings & Pay Summary</h3>
           <span className="badge badge-neutral text-xs">{periodLabel}</span>
         </div>
         <button
-          className="btn-text btn-xs text-muted flex items-center gap-1"
+          className="btn-text btn-xs text-muted flex items-center gap-1 touch-target"
           onClick={() => setShowItemized(!showItemized)}
         >
           <Info size={13} /> {showItemized ? 'Hide Itemized Details' : 'View Itemized Breakdown'}
@@ -71,42 +71,14 @@ export const StatsSummary: React.FC<Props> = ({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {/* Gross Pay Card */}
-        <div className="stat-card stat-gross p-3 rounded-lg border bg-surface-dark">
-          <div className="stat-label text-xs font-semibold text-muted flex items-center justify-between">
-            <span>Gross Earnings</span>
-            <span className="icon-badge icon-badge-primary"><DollarSign size={12} /></span>
-          </div>
-          <div className="stat-value text-2xl font-bold text-primary mt-1">
-            {sym}{summary.grossPay.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-          <div className="stat-subtext text-xs text-muted mt-1">
-            Base: {sym}{summary.baseEarnings.toLocaleString()} {summary.overtimePay > 0 && `| OT: +${sym}${summary.overtimePay.toFixed(0)}`}
-          </div>
-        </div>
-
-        {/* Total Deductions Card */}
-        <div className="stat-card stat-deductions p-3 rounded-lg border bg-surface-dark">
-          <div className="stat-label text-xs font-semibold text-muted flex items-center justify-between">
-            <span>Total Deductions</span>
-            <span className="icon-badge icon-badge-danger"><TrendingDown size={12} /></span>
-          </div>
-          <div className="stat-value text-2xl font-bold text-danger mt-1">
-            -{sym}{summary.totalDeductions.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-          <div className="stat-subtext text-xs text-muted mt-1">
-            Tax & {summary.itemizedDeductions.length > 1 ? `${summary.itemizedDeductions.length - 1} custom item(s)` : 'contributions'}
-          </div>
-        </div>
-
-        {/* Net Take-Home Pay Card */}
-        <div className="stat-card stat-net p-3 rounded-lg border bg-primary/10 border-primary/40">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 w-full">
+        {/* Net Take-Home Pay Card (Order 1 on Mobile, Order 3 on Desktop) */}
+        <div className="stat-card stat-net p-3.5 sm:p-4 rounded-xl border bg-primary/10 border-primary/40 order-1 md:order-3 w-full box-border">
           <div className="stat-label text-xs font-semibold text-primary flex items-center justify-between">
             <span>Net Take-Home Pay</span>
-            <span className="icon-badge icon-badge-success"><DollarSign size={12} /></span>
+            <span className="icon-badge icon-badge-success"><DollarSign size={14} /></span>
           </div>
-          <div className="stat-value text-3xl font-extrabold text-success mt-1">
+          <div className="stat-value text-2xl sm:text-3xl font-extrabold text-success mt-1 text-fluid-stat truncate">
             {sym}{summary.netPay.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className="stat-subtext text-xs text-success/80 mt-1">
@@ -114,16 +86,44 @@ export const StatsSummary: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Total Days Rendered Card */}
-        <div className="stat-card stat-days p-3 rounded-lg border bg-surface-dark">
+        {/* Gross Pay Card (Order 2 on Mobile, Order 1 on Desktop) */}
+        <div className="stat-card stat-gross p-3.5 sm:p-4 rounded-xl border bg-surface-dark order-2 md:order-1 w-full box-border">
+          <div className="stat-label text-xs font-semibold text-muted flex items-center justify-between">
+            <span>Gross Earnings</span>
+            <span className="icon-badge icon-badge-primary"><DollarSign size={14} /></span>
+          </div>
+          <div className="stat-value text-xl sm:text-2xl font-bold text-primary mt-1 text-fluid-stat truncate">
+            {sym}{summary.grossPay.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <div className="stat-subtext text-xs text-muted mt-1 truncate">
+            Base: {sym}{summary.baseEarnings.toLocaleString()} {summary.overtimePay > 0 && `| OT: +${sym}${summary.overtimePay.toFixed(0)}`}
+          </div>
+        </div>
+
+        {/* Total Deductions Card (Order 3 on Mobile, Order 2 on Desktop) */}
+        <div className="stat-card stat-deductions p-3.5 sm:p-4 rounded-xl border bg-surface-dark order-3 md:order-2 w-full box-border">
+          <div className="stat-label text-xs font-semibold text-muted flex items-center justify-between">
+            <span>Total Deductions</span>
+            <span className="icon-badge icon-badge-danger"><TrendingDown size={14} /></span>
+          </div>
+          <div className="stat-value text-xl sm:text-2xl font-bold text-danger mt-1 text-fluid-stat truncate">
+            -{sym}{summary.totalDeductions.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <div className="stat-subtext text-xs text-muted mt-1 truncate">
+            Tax & {summary.itemizedDeductions.length > 1 ? `${summary.itemizedDeductions.length - 1} custom item(s)` : 'contributions'}
+          </div>
+        </div>
+
+        {/* Total Days Rendered Card (Order 4 on Mobile, Order 4 on Desktop) */}
+        <div className="stat-card stat-days p-3.5 sm:p-4 rounded-xl border bg-surface-dark order-4 md:order-4 w-full box-border">
           <div className="stat-label text-xs font-semibold text-muted flex items-center justify-between">
             <span>Total Days Rendered</span>
-            <span className="icon-badge icon-badge-warning"><Calendar size={12} /></span>
+            <span className="icon-badge icon-badge-warning"><Calendar size={14} /></span>
           </div>
-          <div className="stat-value text-2xl font-bold text-foreground mt-1">
+          <div className="stat-value text-xl sm:text-2xl font-bold text-foreground mt-1 truncate">
             {summary.daysRendered} <span className="text-sm font-normal text-muted">/ {summary.scheduledDaysCount} days</span>
           </div>
-          <div className="stat-subtext text-xs text-muted mt-1">
+          <div className="stat-subtext text-xs text-muted mt-1 truncate">
             Shift length: {profile.shiftLengthHours} hrs / day
           </div>
         </div>

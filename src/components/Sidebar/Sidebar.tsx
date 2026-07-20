@@ -5,7 +5,7 @@ import { WageSettings } from './WageSettings';
 import { SchedulePicker } from './SchedulePicker';
 import { DeductionsForm } from './DeductionsForm';
 import { HolidaySettings } from './HolidaySettings';
-import { Settings, HelpCircle, Trash2 } from 'lucide-react';
+import { Settings, HelpCircle, Trash2, X } from 'lucide-react';
 import { startAppTour } from '../../utils/tour';
 
 interface Props {
@@ -17,6 +17,7 @@ interface Props {
   onDeleteProfile: (id: string) => void;
   autoHolidays: Holiday[];
   onResetAllData?: () => void;
+  onCloseDrawer?: () => void;
 }
 
 export const Sidebar: React.FC<Props> = ({
@@ -27,7 +28,8 @@ export const Sidebar: React.FC<Props> = ({
   onUpdateProfile,
   onDeleteProfile,
   autoHolidays,
-  onResetAllData
+  onResetAllData,
+  onCloseDrawer
 }) => {
   return (
     <aside className="sidebar-container space-y-4">
@@ -36,16 +38,28 @@ export const Sidebar: React.FC<Props> = ({
           <Settings size={18} className="icon-primary" />
           <span>Pay Configuration</span>
         </h2>
-        <button
-          id="btn-take-tour"
-          className="btn btn-xs btn-primary flex items-center gap-1.5 font-semibold"
-          onClick={startAppTour}
-          title="Start interactive app walkthrough tour"
-          style={{ whiteSpace: 'nowrap', borderRadius: 'var(--radius-full)', padding: '0.25rem 0.625rem' }}
-        >
-          <HelpCircle size={13} />
-          <span>Take a Tour</span>
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            id="btn-take-tour"
+            className="btn btn-xs btn-primary flex items-center gap-1.5 font-semibold touch-target"
+            onClick={startAppTour}
+            title="Start interactive app walkthrough tour"
+            style={{ whiteSpace: 'nowrap', borderRadius: 'var(--radius-full)', padding: '0.25rem 0.625rem', minHeight: '32px' }}
+          >
+            <HelpCircle size={13} />
+            <span>Tour</span>
+          </button>
+          {onCloseDrawer && (
+            <button
+              className="btn btn-ghost touch-target"
+              onClick={onCloseDrawer}
+              title="Close drawer"
+              style={{ padding: '0.375rem' }}
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
       </div>
 
       <div id="tour-profile-selector">
@@ -90,7 +104,7 @@ export const Sidebar: React.FC<Props> = ({
 
       {onResetAllData && (
         <button
-          className="sidebar-reset-btn"
+          className="sidebar-reset-btn touch-target"
           onClick={() => {
             if (window.confirm('Are you sure you want to delete all saved profiles and work logs? This action cannot be undone.')) {
               onResetAllData();
@@ -104,3 +118,4 @@ export const Sidebar: React.FC<Props> = ({
     </aside>
   );
 };
+

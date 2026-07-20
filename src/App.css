@@ -7,18 +7,25 @@
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .main-layout-grid {
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 320px 1fr;
   gap: 0;
+  width: 100%;
+  max-width: 100%;
   min-height: calc(100vh - 56px);
+  box-sizing: border-box;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
   .main-layout-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 100%;
+    width: 100%;
+    max-width: 100%;
   }
 }
 
@@ -170,9 +177,17 @@
   gap: 0.25rem;
 }
 
+@media (max-width: 640px) {
+  .day-picker-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.375rem;
+  }
+}
+
 .day-chip {
-  padding: 0.375rem 0;
-  font-size: 0.625rem;
+  padding: 0.5rem 0;
+  min-height: 40px;
+  font-size: 0.75rem;
   font-weight: 700;
   text-align: center;
   border-radius: var(--radius-sm);
@@ -181,6 +196,9 @@
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .day-chip.active {
@@ -196,8 +214,9 @@
 
 .preset-btn {
   flex: 1;
-  padding: 0.25rem 0.375rem;
-  font-size: 0.625rem;
+  padding: 0.5rem 0.375rem;
+  min-height: 38px;
+  font-size: 0.6875rem;
   font-weight: 600;
   border: 1.5px solid var(--border-color);
   background: var(--surface-white);
@@ -256,6 +275,117 @@
 .sidebar-reset-btn:hover {
   background: #b91c1c;
 }
+
+/* ═══════════════════════════════════
+   DRAWER & FAB (TABLET/MOBILE)
+   ═══════════════════════════════════ */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+}
+
+.drawer-content {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 88vw;
+  max-width: 360px;
+  background: var(--surface-white);
+  z-index: 101;
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+  animation: slideInLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.drawer-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface-white);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.mobile-fab-btn {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 90;
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 0.75rem 1.25rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  box-shadow: 0 10px 25px -5px rgba(29, 78, 216, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.mobile-fab-btn:active {
+  transform: scale(0.95);
+}
+
+/* Mobile Kebab Dropdown Menu */
+.kebab-dropdown-menu {
+  position: absolute;
+  top: 3.25rem;
+  right: 1rem;
+  background: var(--surface-white);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  padding: 0.5rem;
+  min-width: 220px;
+  z-index: 110;
+  animation: modalIn 0.15s ease;
+}
+
+.kebab-dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--foreground);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s ease;
+}
+
+.kebab-dropdown-item:hover {
+  background: var(--surface-hover);
+}
+
 
 /* ═══════════════════════════════════
    CALENDAR
@@ -490,9 +620,87 @@
 .status-chip.active.status-absent { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
 .status-chip.active.status-rest { background: var(--surface-light); border-color: var(--text-muted); color: var(--text-muted); }
 
-/* ═══════════════════════════════════
-   STATS SUMMARY
-   ═══════════════════════════════════ */
+/* Semantic Dot Indicators (Tablet Mode) */
+.status-dots-container {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-scheduled { background-color: var(--text-muted); }
+.dot-rendered { background-color: var(--primary); }
+.dot-overtime { background-color: var(--success); }
+.dot-undertime { background-color: var(--warning); }
+.dot-leave { background-color: var(--purple); }
+.dot-absent { background-color: var(--danger); }
+.dot-rest { background-color: var(--border-color); }
+
+/* Agenda View for Mobile */
+.agenda-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+.agenda-day-card {
+  background: var(--surface-white);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 54px;
+}
+
+.agenda-day-card:hover, .agenda-day-card:active {
+  border-color: var(--primary);
+  background: var(--surface-light);
+}
+
+.agenda-day-card.is-today {
+  border-color: var(--primary);
+  background: rgba(29, 78, 216, 0.03);
+}
+
+.agenda-date-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 44px;
+  background: var(--surface-light);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  line-height: 1.1;
+}
+
+.agenda-date-day {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.agenda-date-num {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--foreground);
+}
+
 .stats-summary-card {
   background: var(--surface-white);
   border-radius: var(--radius-xl);
