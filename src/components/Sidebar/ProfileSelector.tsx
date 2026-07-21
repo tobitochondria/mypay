@@ -113,7 +113,7 @@ export const ProfileSelector: React.FC<Props> = ({
               <span>Type: </span>
               <strong className="text-foreground capitalize">{activeProfile.employmentType || 'regular'}</strong>
               {activeProfile.employmentType === 'contractual' ? (
-                <span className="text-muted italic">(No Holiday Multipliers)</span>
+                <span className="text-muted italic">(Holidays Off • No Multipliers)</span>
               ) : (
                 <span className="text-success italic">(Holiday Multipliers Active)</span>
               )}

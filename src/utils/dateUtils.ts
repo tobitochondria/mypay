@@ -17,18 +17,29 @@ const DAY_KEYS: (keyof WorkSchedule)[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fr
 
 /**
  * Checks whether a given date falls on a scheduled work day according to the job profile schedule.
+ * For Contractual employment, holidays are not scheduled work days ("Off").
  */
 export function isScheduledWorkDay(
   date: Date, 
   schedule: WorkSchedule, 
   startDate?: string, 
-  endDate?: string
+  endDate?: string,
+  holidays?: Holiday[] | Map<string, Holiday>,
+  employmentType?: 'regular' | 'contractual'
 ): boolean {
   const dateStr = formatDateKey(date);
 
   // Date range boundary guard clauses
   if (startDate && dateStr < startDate) return false;
   if (endDate && dateStr > endDate) return false;
+
+  // For Contractual employment, holidays are non-working ("Off")
+  if (employmentType === 'contractual' && holidays) {
+    const isHoliday = holidays instanceof Map 
+      ? holidays.has(dateStr) 
+      : holidays.some(h => h.date === dateStr);
+    if (isHoliday) return false;
+  }
 
   const dayIndex = getDay(date);
   const dayKey = DAY_KEYS[dayIndex];

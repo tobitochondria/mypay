@@ -27,7 +27,7 @@ export const DayModal: React.FC<Props> = ({
   onClose
 }) => {
   const dateStr = formatDateKey(date);
-  const isScheduled = isScheduledWorkDay(date, profile.workSchedule, profile.startDate, profile.endDate);
+  const isScheduled = isScheduledWorkDay(date, profile.workSchedule, profile.startDate, profile.endDate, holidays, profile.employmentType);
 
   const [status, setStatus] = useState<DayWorkStatus>(
     log?.status || (isScheduled ? 'rendered' : 'rest-day')

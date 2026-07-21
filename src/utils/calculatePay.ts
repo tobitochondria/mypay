@@ -26,7 +26,7 @@ export function calculateDailyEarnings(
   holidays: Holiday[] | Map<string, Holiday>
 ): DailyEarnedDetails {
   const dateStr = formatDateKey(date);
-  const isScheduled = isScheduledWorkDay(date, profile.workSchedule, profile.startDate, profile.endDate);
+  const isScheduled = isScheduledWorkDay(date, profile.workSchedule, profile.startDate, profile.endDate, holidays, profile.employmentType);
 
   // Fast O(1) holiday lookup if Map, fallback to O(N) array search
   const holiday = holidays instanceof Map 
@@ -113,7 +113,7 @@ export function calculatePaySummary(
   for (const date of daysInPeriod) {
     const dateStr = formatDateKey(date);
     const log = logsMap[dateStr];
-    const isScheduled = isScheduledWorkDay(date, profile.workSchedule, profile.startDate, profile.endDate);
+    const isScheduled = isScheduledWorkDay(date, profile.workSchedule, profile.startDate, profile.endDate, holidayMap, profile.employmentType);
 
     if (isScheduled) {
       scheduledDaysCount++;

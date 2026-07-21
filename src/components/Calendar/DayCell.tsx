@@ -31,7 +31,7 @@ export const DayCell: React.FC<Props> = ({
 }) => {
   const isCurrentMonth = isSameMonth(date, currentMonthDate);
   const isCurrentDay = isToday(date);
-  const isScheduled = isScheduledWorkDay(date, profile.workSchedule, profile.startDate, profile.endDate);
+  const isScheduled = isScheduledWorkDay(date, profile.workSchedule, profile.startDate, profile.endDate, holidays, profile.employmentType);
 
   const earnings = calculateDailyEarnings(date, log, profile, holidays);
 
