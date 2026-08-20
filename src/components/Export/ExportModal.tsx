@@ -62,7 +62,6 @@ export const ExportModal: React.FC<Props> = ({
     rows.push(['SUMMARY']);
     rows.push(['Total Earned', summary.totalEarned.toFixed(2)]);
     rows.push(['Days Logged', summary.daysLogged.toString()]);
-    rows.push(['Average per Logged Day', summary.averagePerDay.toFixed(2)]);
 
     const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.join(',')).join('\n');
     const encodedUri = encodeURI(csvContent);
