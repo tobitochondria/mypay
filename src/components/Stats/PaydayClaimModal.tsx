@@ -3,7 +3,7 @@ import type { AppSettings, DailyLog } from '../../types';
 import { getMonthCalendarDays, getActualPayday, getPeriodKey } from '../../utils/dateUtils';
 import { calculatePeriodSummary } from '../../utils/calculatePay';
 import { format, getMonth } from 'date-fns';
-import { X, CheckCircle2, RotateCcw, Banknote } from 'lucide-react';
+import { X, CheckCircle2, RotateCcw, CreditCard } from 'lucide-react';
 
 interface PaydayPeriodRow {
     key: string;       // e.g. "2026-08-period-1"
@@ -29,7 +29,7 @@ export const PaydayClaimModal: React.FC<Props> = ({
     onUpdateSettings,
     onClose,
 }) => {
-    const { claimedPeriods, holidays, currencySymbol } = settings;
+    const { claimedPeriods, currencySymbol } = settings;
     const sym = currencySymbol || '₱';
 
     // Build set of all month+period combos that have any logged earnings
@@ -68,8 +68,8 @@ export const PaydayClaimModal: React.FC<Props> = ({
         const periodDays = monthDays.filter(d =>
             period === 'period-1' ? d.getDate() <= 15 : d.getDate() >= 16
         );
-        const { totalEarned } = calculatePeriodSummary(periodDays, logs, '');
-        const paydayDate = getActualPayday(year, month, period, holidays);
+        const { totalEarned } = calculatePeriodSummary(periodDays, logs, '', settings.workdays);
+        const paydayDate = getActualPayday(year, month, period, []);
 
         rows.push({
             key,
@@ -106,8 +106,8 @@ export const PaydayClaimModal: React.FC<Props> = ({
                 {/* Header */}
                 <div className="modal-header flex justify-between items-center pb-3 border-b border-border">
                     <div className="flex items-center gap-2">
-                        <Banknote size={20} className="icon-primary" />
-                        <h3 className="text-lg font-bold">Payday Claims</h3>
+                        <CreditCard size={20} className="icon-primary" />
+                        <h3 className="text-lg font-bold">Cutoff Claims</h3>
                     </div>
                     <button className="btn-icon btn-ghost" onClick={onClose}>
                         <X size={20} />
@@ -133,7 +133,7 @@ export const PaydayClaimModal: React.FC<Props> = ({
                                     )}
                                 </div>
                                 <div className="text-xs text-muted mt-0.5">
-                                    Payday: {format(row.paydayDate, 'EEE, MMM d, yyyy')}
+                                    Cutoff Date: {format(row.paydayDate, 'EEE, MMM d, yyyy')}
                                 </div>
                             </div>
 

@@ -23,9 +23,7 @@ export function formatDateKey(date: Date): string {
   return format(date, 'yyyy-MM-dd');
 }
 
-function isLeapYear(year: number): boolean {
-  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-}
+
 
 /**
  * Returns all nominal payday day-numbers for a given month+mode.
@@ -37,12 +35,7 @@ export function getNominalPaydays(
   month: number,
   mode: PaydayMode
 ): number[] {
-  let endDay: number;
-  if (month === 1) {
-    endDay = isLeapYear(year) ? 29 : 28;
-  } else {
-    endDay = Math.min(getDaysInMonth(new Date(year, month, 1)), 30);
-  }
+  const endDay = getDaysInMonth(new Date(year, month, 1));
   return mode === 'semimonthly' ? [15, endDay] : [endDay];
 }
 
@@ -64,11 +57,7 @@ export function getActualPayday(
   if (period === 'period-1') {
     nominalDay = 15;
   } else {
-    if (month === 1) {
-      nominalDay = isLeapYear(year) ? 29 : 28;
-    } else {
-      nominalDay = Math.min(getDaysInMonth(new Date(year, month, 1)), 30);
-    }
+    nominalDay = getDaysInMonth(new Date(year, month, 1));
   }
 
   let payday = new Date(year, month, nominalDay);

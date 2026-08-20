@@ -6,7 +6,7 @@ import type { PayPeriodFilter, CalendarViewMode } from './CalendarHeader';
 import { CalendarHeader } from './CalendarHeader';
 import { DayCell } from './DayCell';
 import { DayModal } from './DayModal';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, CreditCard, Sun, Plane, UserX } from 'lucide-react';
 
 interface Props {
   currentDate: Date;
@@ -38,16 +38,16 @@ export const CalendarGrid: React.FC<Props> = ({
 
   const year = getYear(currentDate);
   const month = getMonth(currentDate);
-  const { paydayMode, holidays, workdays, currencySymbol, dailyPayRate } = settings;
+  const { paydayMode, workdays, currencySymbol, dailyPayRate } = settings;
 
   const calendarDays = getMonthCalendarDays(year, month);
 
   // Compute actual payday dates for current month based on mode
   const paydayKeys = new Set<string>();
-  const payday2 = getActualPayday(year, month, 'period-2', holidays);
+  const payday2 = getActualPayday(year, month, 'period-2', []);
   paydayKeys.add(formatDateKey(payday2));
   if (paydayMode === 'semimonthly') {
-    const payday1 = getActualPayday(year, month, 'period-1', holidays);
+    const payday1 = getActualPayday(year, month, 'period-1', []);
     paydayKeys.add(formatDateKey(payday1));
   }
 
@@ -118,6 +118,7 @@ export const CalendarGrid: React.FC<Props> = ({
             const hasAmount = Boolean(log && log.amount > 0);
             const isPayday = paydayKeys.has(dateStr);
             const isWorkday = workdays.includes(date.getDay());
+            const dayType = log?.dayType ?? 'work';
 
             return (
               <div
@@ -136,8 +137,11 @@ export const CalendarGrid: React.FC<Props> = ({
                   )}
                   <div className="text-xs text-muted flex items-center gap-1.5 flex-wrap">
                     {isTodayDate && <span className="text-primary font-bold">TODAY</span>}
-                    {isPayday && <span className="agenda-payday-pill">💰 Payday</span>}
-                    {isWorkday && !isPayday && <span className="agenda-workday-pill">Work</span>}
+                    {isPayday && <span className="agenda-payday-pill"><CreditCard size={10} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '2px' }} /> Cutoff</span>}
+                    {log && dayType === 'holiday' && <span className="agenda-holiday-pill"><Sun size={10} /> Holiday</span>}
+                    {log && dayType === 'leave' && <span className="agenda-leave-pill"><Plane size={10} /> Leave</span>}
+                    {log && dayType === 'absent' && <span className="agenda-absent-pill"><UserX size={10} /> Absent</span>}
+                    {isWorkday && !isPayday && !log && <span className="agenda-workday-pill">Work</span>}
                     <span>{format(date, 'MMMM d, yyyy')}</span>
                   </div>
                 </div>

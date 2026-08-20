@@ -8,9 +8,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   dailyPayRate: 0,
   workdays: [1, 2, 3, 4, 5], // Mon–Fri
   paydayMode: 'semimonthly',
-  holidays: [],
   claimedPeriods: [],
-  googleCalendarApiKey: '',
 };
 
 export function getStoredSettings(): AppSettings {

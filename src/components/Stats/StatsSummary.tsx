@@ -4,7 +4,7 @@ import { calculatePeriodSummary } from '../../utils/calculatePay';
 import { getMonthCalendarDays, getActualPayday, getPeriodKey, getNextPeriod } from '../../utils/dateUtils';
 import type { PayPeriodFilter } from '../Calendar/CalendarHeader';
 import { getMonth, getYear, format } from 'date-fns';
-import { DollarSign, Calendar, TrendingUp, Banknote, ChevronRight } from 'lucide-react';
+import { DollarSign, Calendar, TrendingUp, CreditCard, ChevronRight, Briefcase, Sun, Plane, UserX } from 'lucide-react';
 import { PaydayClaimModal } from './PaydayClaimModal';
 
 interface Props {
@@ -24,7 +24,7 @@ export const StatsSummary: React.FC<Props> = ({
 }) => {
   const [showClaimModal, setShowClaimModal] = useState(false);
 
-  const { currencySymbol, claimedPeriods, holidays } = settings;
+  const { currencySymbol, claimedPeriods, workdays } = settings;
   const sym = currencySymbol || '₱';
   const year = getYear(currentDate);
   const month = getMonth(currentDate);
@@ -42,20 +42,23 @@ export const StatsSummary: React.FC<Props> = ({
   const periodLabel = periodFilter === 'all'
     ? 'Full Month Summary'
     : periodFilter === 'period-1'
-      ? '1st - 15th Pay Period'
-      : '16th - End Pay Period';
+      ? '1st - 15th Cutoff'
+      : '16th - End Cutoff';
 
-  const summary = calculatePeriodSummary(filteredDays, logs, periodLabel);
+  const summary = calculatePeriodSummary(filteredDays, logs, periodLabel, workdays);
 
-  // Next payday info
+  // Unlogged workdays (no entry at all) = implicit absent for display
+  const unlogged = summary.scheduledWorkdays - summary.attendances - summary.leaves - summary.holidayCount - summary.absences;
+
+  // Next cutoff info
   const today = new Date();
   const next = getNextPeriod(today, settings.paydayMode);
   const nextPeriodKey = getPeriodKey(next.year, next.month, next.period);
   const nextIsClaimed = claimedPeriods.includes(nextPeriodKey);
-  const nextPayday = getActualPayday(next.year, next.month, next.period, holidays);
+  const nextPayday = getActualPayday(next.year, next.month, next.period, []);
   const nextPeriodLabel = next.period === 'period-1' ? '1st–15th' : '16th–End';
 
-  // Cumulative unclaimed: sum all logs whose period is NOT in claimedPeriods
+  // Cumulative unclaimed
   let cumulativeUnclaimed = 0;
   for (const [dateStr, log] of Object.entries(logs)) {
     if (!log.amount || log.amount <= 0) continue;
@@ -81,7 +84,7 @@ export const StatsSummary: React.FC<Props> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4 w-full">
           {/* Total Earned */}
           <div className="stat-card stat-net p-3.5 sm:p-4 rounded-xl border bg-primary/10 border-primary/40 w-full box-border">
             <div className="stat-label text-xs font-semibold text-primary flex items-center justify-between">
@@ -92,7 +95,7 @@ export const StatsSummary: React.FC<Props> = ({
               {sym}{summary.totalEarned.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <div className="stat-subtext text-xs text-success/80 mt-1">
-              Sum of all manually logged daily earnings
+              Sum of logged earnings for this cutoff
             </div>
           </div>
 
@@ -103,25 +106,41 @@ export const StatsSummary: React.FC<Props> = ({
               <span className="icon-badge icon-badge-warning"><Calendar size={14} /></span>
             </div>
             <div className="stat-value text-xl sm:text-2xl font-bold text-foreground mt-1 truncate">
-              {summary.daysLogged} <span className="text-sm font-normal text-muted">/ {filteredDays.length} days</span>
+              {summary.daysLogged} <span className="text-sm font-normal text-muted">/ {summary.scheduledWorkdays} workdays</span>
             </div>
             <div className="stat-subtext text-xs text-muted mt-1 truncate">
-              Days in this period with a logged amount
+              Workdays with a logged amount
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Average per Day */}
-          <div className="stat-card stat-gross p-3.5 sm:p-4 rounded-xl border bg-surface-dark w-full box-border">
-            <div className="stat-label text-xs font-semibold text-muted flex items-center justify-between">
-              <span>Average per Logged Day</span>
-              <span className="icon-badge icon-badge-primary"><DollarSign size={14} /></span>
-            </div>
-            <div className="stat-value text-xl sm:text-2xl font-bold text-primary mt-1 truncate">
-              {sym}{summary.averagePerDay.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </div>
-            <div className="stat-subtext text-xs text-muted mt-1 truncate">
-              Total earned ÷ days logged
-            </div>
+      {/* ── Attendance Breakdown ── */}
+      <div>
+        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+          <Calendar size={16} className="text-muted" />
+          <h3 className="font-bold text-sm tracking-tight text-muted">Attendance Breakdown</h3>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="attendance-chip attendance-chip--work">
+            <Briefcase size={13} />
+            <span className="attendance-chip-count">{summary.attendances}</span>
+            <span className="attendance-chip-label">Present</span>
+          </div>
+          <div className="attendance-chip attendance-chip--holiday">
+            <Sun size={13} />
+            <span className="attendance-chip-count">{summary.holidayCount}</span>
+            <span className="attendance-chip-label">Holiday</span>
+          </div>
+          <div className="attendance-chip attendance-chip--leave">
+            <Plane size={13} />
+            <span className="attendance-chip-count">{summary.leaves}</span>
+            <span className="attendance-chip-label">Leave</span>
+          </div>
+          <div className="attendance-chip attendance-chip--absent">
+            <UserX size={13} />
+            <span className="attendance-chip-count">{summary.absences + unlogged}</span>
+            <span className="attendance-chip-label">Absent</span>
           </div>
         </div>
       </div>
@@ -130,15 +149,15 @@ export const StatsSummary: React.FC<Props> = ({
       <button
         className="estimated-gross-card w-full text-left"
         onClick={() => setShowClaimModal(true)}
-        title="Click to manage payday claims"
+        title="Click to manage cutoff claims"
       >
         <div className="flex items-center justify-between gap-3 mb-2">
           <div className="flex items-center gap-2">
-            <Banknote size={18} className="icon-primary" />
+            <CreditCard size={18} className="icon-primary" />
             <h3 className="font-bold text-base tracking-tight">Estimated Gross Salary</h3>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="badge badge-primary text-xs">Next Payday</span>
+            <span className="badge badge-primary text-xs">Next Cutoff</span>
             <ChevronRight size={16} className="text-muted" />
           </div>
         </div>
@@ -149,12 +168,12 @@ export const StatsSummary: React.FC<Props> = ({
 
         <p className="text-xs text-muted">
           {nextIsClaimed
-            ? `Next period (${nextPeriodLabel}) claimed — tap to manage`
-            : `Cumulative unclaimed · Next payday ${format(nextPayday, 'EEE, MMM d, yyyy')}`}
+            ? `Next cutoff (${nextPeriodLabel}) claimed — tap to manage`
+            : `Cumulative unclaimed · Next cutoff ${format(nextPayday, 'EEE, MMM d, yyyy')}`}
         </p>
       </button>
 
-      {/* Payday Claim Modal */}
+      {/* Cutoff Claim Modal */}
       {showClaimModal && (
         <PaydayClaimModal
           logs={logs}

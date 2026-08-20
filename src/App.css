@@ -1115,3 +1115,239 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+
+/* ═══════════════════════════════════
+   PAYDAY BANNER (modified: now Cutoff)
+   ═══════════════════════════════════ */
+.payday-banner {
+  font-size: 0.5625rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--success);
+  background: var(--success-bg);
+  border-radius: var(--radius-xs);
+  padding: 0.0625rem 0.3125rem;
+  margin-bottom: 0.1875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.1875rem;
+  width: fit-content;
+}
+
+.agenda-payday-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: var(--success-bg);
+  color: var(--success);
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--radius-full);
+}
+
+/* ═══════════════════════════════════
+   DAY TYPE TOGGLE (DayModal)
+   ═══════════════════════════════════ */
+.day-type-toggle-group {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.375rem;
+}
+
+@media (max-width: 400px) {
+  .day-type-toggle-group {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.day-type-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3125rem;
+  padding: 0.5rem 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-color);
+  background: var(--surface-white);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.day-type-btn:hover:not(.active) {
+  border-color: var(--text-muted);
+  color: var(--foreground);
+  background: var(--surface-hover);
+}
+
+/* work */
+.day-type-btn--work.active {
+  background: var(--primary-bg);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* holiday */
+.day-type-btn--holiday.active {
+  background: #fef9c3;
+  border-color: #ca8a04;
+  color: #92400e;
+}
+
+/* leave */
+.day-type-btn--leave.active {
+  background: var(--purple-bg, #f3e8ff);
+  border-color: #9333ea;
+  color: #6b21a8;
+}
+
+/* absent */
+.day-type-btn--absent.active {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* ═══════════════════════════════════
+   DAY CELL – DAY TYPE STATES
+   ═══════════════════════════════════ */
+.day-cell.daycell-holiday {
+  background: rgba(250, 204, 21, 0.05);
+  border-color: #ca8a04;
+}
+
+.day-cell.daycell-leave {
+  background: rgba(147, 51, 234, 0.05);
+  border-color: #9333ea;
+}
+
+.day-cell.daycell-absent {
+  background: rgba(220, 38, 38, 0.04);
+  border-color: var(--danger);
+}
+
+.day-type-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════
+   ATTENDANCE CHIPS (StatsSummary)
+   ═══════════════════════════════════ */
+.attendance-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1875rem;
+  padding: 0.625rem 0.5rem;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--border-color);
+  background: var(--surface-light);
+  text-align: center;
+}
+
+.attendance-chip-count {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.attendance-chip-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.attendance-chip--work {
+  border-color: var(--primary-border, rgba(29, 78, 216, 0.2));
+  background: var(--primary-bg);
+  color: var(--primary);
+}
+
+.attendance-chip--work .attendance-chip-label {
+  color: var(--primary);
+  opacity: 0.75;
+}
+
+.attendance-chip--holiday {
+  border-color: #ca8a04;
+  background: #fef9c3;
+  color: #92400e;
+}
+
+.attendance-chip--holiday .attendance-chip-label {
+  color: #92400e;
+  opacity: 0.75;
+}
+
+.attendance-chip--leave {
+  border-color: #9333ea;
+  background: var(--purple-bg, #f3e8ff);
+  color: #6b21a8;
+}
+
+.attendance-chip--leave .attendance-chip-label {
+  color: #6b21a8;
+  opacity: 0.75;
+}
+
+.attendance-chip--absent {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.attendance-chip--absent .attendance-chip-label {
+  color: var(--danger);
+  opacity: 0.75;
+}
+
+/* ═══════════════════════════════════
+   AGENDA – DAY TYPE PILLS
+   ═══════════════════════════════════ */
+.agenda-holiday-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #fef9c3;
+  color: #92400e;
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--radius-full);
+}
+
+.agenda-leave-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: var(--purple-bg, #f3e8ff);
+  color: #6b21a8;
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--radius-full);
+}
+
+.agenda-absent-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--radius-full);
+}
