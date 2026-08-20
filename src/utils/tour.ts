@@ -11,52 +11,16 @@ export function startAppTour() {
         element: '.app-header',
         popover: {
           title: '👋 Welcome to MyPay Calculator',
-          description: 'Your personal wage, salary, overtime, and payday tracker. Let’s take a quick tour to see how it works!',
+          description: 'Your simple daily earnings tracker. Let’s take a quick tour to see how it works!',
           side: 'bottom',
           align: 'center'
         }
       },
       {
-        element: '#tour-profile-selector',
+        element: '#tour-currency-settings',
         popover: {
-          title: '1. Source of Income & Job Profiles',
-          description: 'Create and switch between multiple job profiles. Toggle between **Regular** (includes 200% double pay & 130% premium holiday multipliers) and **Contractual** (fixed daily rate).',
-          side: 'right',
-          align: 'start'
-        }
-      },
-      {
-        element: '#tour-wage-settings',
-        popover: {
-          title: '2. Daily Wage & Shift Configuration',
-          description: 'Set your daily wage rate, standard shift length, payment frequency (Semi-Monthly on 15th/End of Month or Monthly), and payday rules.',
-          side: 'right',
-          align: 'start'
-        }
-      },
-      {
-        element: '#tour-work-schedule',
-        popover: {
-          title: '3. Work Schedule Preset',
-          description: 'Choose your weekly work schedule (Mon-Fri, Mon-Sat, or Custom). Scheduled work days are automatically flagged on the calendar.',
-          side: 'right',
-          align: 'start'
-        }
-      },
-      {
-        element: '#tour-deductions',
-        popover: {
-          title: '4. Tax & Itemized Deductions',
-          description: 'Add percentage or fixed amount deductions (e.g., Tax, SSS, PhilHealth). Deductions are automatically subtracted to calculate net take-home pay.',
-          side: 'right',
-          align: 'start'
-        }
-      },
-      {
-        element: '#tour-holidays',
-        popover: {
-          title: '5. Auto-Detected Holidays',
-          description: 'Detects official holidays based on your selected country code. You can also add custom company holidays.',
+          title: '1. Currency Settings',
+          description: 'Set the currency symbol shown next to every amount you log.',
           side: 'right',
           align: 'start'
         }
@@ -64,8 +28,8 @@ export function startAppTour() {
       {
         element: '#tour-calendar-card',
         popover: {
-          title: '6. Interactive Calendar & Day Logger',
-          description: 'Click on any day cell to open the Day Log. Mark attendance, log overtime/undertime, select Paid Leave (SL/VL), add notes, or set manual income overrides!',
+          title: '2. Interactive Calendar & Day Logger',
+          description: 'Click on any day to log how much you earned that day, plus an optional note.',
           side: 'left',
           align: 'start'
         }
@@ -73,8 +37,8 @@ export function startAppTour() {
       {
         element: '#tour-stats-summary',
         popover: {
-          title: '7. Real-Time Pay & Earnings Summary',
-          description: 'View your calculated Gross Earnings, Total Deductions, Net Take-Home Pay, and Days Rendered. Click "View Itemized Breakdown" for a full summary table.',
+          title: '3. Real-Time Earnings Summary',
+          description: 'View your Total Earned, Days Logged, and Average per Logged Day for the current view.',
           side: 'top',
           align: 'center'
         }
@@ -82,8 +46,8 @@ export function startAppTour() {
       {
         element: '#tour-import-export-actions',
         popover: {
-          title: '8. Import & Export Data',
-          description: 'Export your monthly payroll report to CSV spreadsheet format, download full JSON backups, or click "Import Data" to restore backups.',
+          title: '4. Import & Export Data',
+          description: 'Export your monthly earnings to CSV spreadsheet format, download full JSON backups, or click "Import Data" to restore backups.',
           side: 'bottom',
           align: 'end'
         }

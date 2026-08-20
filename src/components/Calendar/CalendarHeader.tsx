@@ -1,6 +1,7 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, LayoutGrid, List } from 'lucide-react';
+import type { PaydayMode } from '../../types';
 
 export type PayPeriodFilter = 'all' | 'period-1' | 'period-2';
 export type CalendarViewMode = 'grid' | 'agenda';
@@ -12,9 +13,9 @@ interface Props {
   onToday: () => void;
   periodFilter: PayPeriodFilter;
   onFilterChange: (filter: PayPeriodFilter) => void;
-  isSemiMonthly: boolean;
   viewMode: CalendarViewMode;
   onViewModeChange: (mode: CalendarViewMode) => void;
+  paydayMode: PaydayMode;
 }
 
 export const CalendarHeader: React.FC<Props> = ({
@@ -24,10 +25,13 @@ export const CalendarHeader: React.FC<Props> = ({
   onToday,
   periodFilter,
   onFilterChange,
-  isSemiMonthly,
   viewMode,
-  onViewModeChange
+  onViewModeChange,
+  paydayMode,
 }) => {
+  // Force "all" if paydayMode is monthly and filter is period-1 (no period-1 exists)
+  const effectiveFilter = paydayMode === 'monthly' && periodFilter === 'period-1' ? 'all' : periodFilter;
+
   return (
     <div className="calendar-header-bar flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3.5 w-full border-b border-slate-100">
       {/* Left: View Mode Switcher */}
@@ -50,11 +54,10 @@ export const CalendarHeader: React.FC<Props> = ({
         </button>
       </div>
 
-      {/* Center: Month Title & Navigation Controls (Unified at Center) */}
+      {/* Center: Month Title & Navigation */}
       <div className="month-display flex items-center justify-center gap-2.5 sm:gap-3 sm:mx-auto flex-shrink-0">
         <CalendarIcon className="icon-primary flex-shrink-0" size={20} />
         <h2 className="text-base sm:text-xl font-bold text-slate-900 whitespace-nowrap">{format(currentDate, 'MMMM yyyy')}</h2>
-
         <div className="nav-buttons flex items-center gap-1 ml-1 sm:ml-2">
           <button className="btn-icon touch-target" onClick={onPrevMonth} title="Previous Month" style={{ minWidth: '34px', minHeight: '34px' }}>
             <ChevronLeft size={18} />
@@ -68,51 +71,51 @@ export const CalendarHeader: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Right: Pay Period Segmented Controller */}
+      {/* Right: Period Filter */}
       <div className="flex items-center gap-2 justify-end flex-shrink-0 self-end sm:self-auto">
+        {/* Desktop segmented control */}
         <div className="filter-segment hidden sm:flex items-center">
           <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', fontWeight: 500, padding: '0 0.375rem' }}>
-            Pay Period:
+            View:
           </span>
           <button
-            className={`segment-btn ${periodFilter === 'all' ? 'active' : ''}`}
+            className={`segment-btn ${effectiveFilter === 'all' ? 'active' : ''}`}
             onClick={() => onFilterChange('all')}
           >
             Full Month
           </button>
-          {isSemiMonthly && (
-            <>
-              <button
-                className={`segment-btn ${periodFilter === 'period-1' ? 'active' : ''}`}
-                onClick={() => onFilterChange('period-1')}
-              >
-                1st - 15th
-              </button>
-              <button
-                className={`segment-btn ${periodFilter === 'period-2' ? 'active' : ''}`}
-                onClick={() => onFilterChange('period-2')}
-              >
-                16th - End
-              </button>
-            </>
+          {paydayMode === 'semimonthly' && (
+            <button
+              className={`segment-btn ${effectiveFilter === 'period-1' ? 'active' : ''}`}
+              onClick={() => onFilterChange('period-1')}
+            >
+              1st – 15th
+            </button>
           )}
+          <button
+            className={`segment-btn ${effectiveFilter === 'period-2' ? 'active' : ''}`}
+            onClick={() => onFilterChange('period-2')}
+          >
+            {paydayMode === 'monthly' ? 'Full Month' : '16th – End'}
+          </button>
         </div>
 
+        {/* Mobile dropdown */}
         <div className="sm:hidden flex-1 min-w-[110px]">
           <select
             className="form-control form-control-sm text-xs font-semibold py-1.5 px-2.5 w-full"
-            value={periodFilter}
+            value={effectiveFilter}
             onChange={(e) => onFilterChange(e.target.value as PayPeriodFilter)}
             style={{ minHeight: '36px' }}
           >
             <option value="all">Full Month</option>
-            {isSemiMonthly && <option value="period-1">1st - 15th</option>}
-            {isSemiMonthly && <option value="period-2">16th - End</option>}
+            {paydayMode === 'semimonthly' && (
+              <option value="period-1">1st – 15th</option>
+            )}
+            <option value="period-2">{paydayMode === 'monthly' ? 'Full Month' : '16th – End'}</option>
           </select>
         </div>
       </div>
     </div>
   );
 };
-
-

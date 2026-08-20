@@ -1,97 +1,38 @@
-import type { JobProfile, DailyLog } from '../types';
+import type { AppSettings, DailyLog } from '../types';
 
-const PROFILES_KEY = 'mypay_job_profiles';
-const ACTIVE_PROFILE_KEY = 'mypay_active_profile_id';
-const LOGS_KEY_PREFIX = 'mypay_logs_';
+const SETTINGS_KEY = 'mypay_settings';
+const LOGS_KEY = 'mypay_logs';
 
-export const DEFAULT_PROFILES: JobProfile[] = [
-  {
-    id: 'profile-blank-1',
-    title: 'My Job Profile',
-    company: 'My Company',
-    currencySymbol: '₱',
-    dailyRate: 0,
-    shiftLengthHours: 10,
-    otMultiplier: 1.25,
-    workSchedule: {
-      mon: true,
-      tue: true,
-      wed: true,
-      thu: true,
-      fri: true,
-      sat: false,
-      sun: false
-    },
-    taxDeduction: {
-      id: 'tax-blank',
-      name: 'Tax Deduction',
-      type: 'percentage',
-      value: 0
-    },
-    otherDeductions: [],
-    paymentFrequency: 'semi-monthly',
-    paydayRule: 'on-or-before',
-    employmentType: 'regular',
-    countryCode: 'PH',
-    customHolidays: []
-  }
-];
+export const DEFAULT_SETTINGS: AppSettings = {
+  currencySymbol: '₱',
+  dailyPayRate: 0,
+  workdays: [1, 2, 3, 4, 5], // Mon–Fri
+  paydayMode: 'semimonthly',
+  holidays: [],
+  claimedPeriods: [],
+  googleCalendarApiKey: '',
+};
 
-/**
- * Loads stored job profiles from localStorage, returning default profile if empty or corrupted.
- */
-export function getStoredProfiles(): JobProfile[] {
+export function getStoredSettings(): AppSettings {
   try {
-    const raw = localStorage.getItem(PROFILES_KEY);
-    if (!raw) return DEFAULT_PROFILES;
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (!raw) return DEFAULT_SETTINGS;
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_PROFILES;
+    return parsed && typeof parsed === 'object' ? { ...DEFAULT_SETTINGS, ...parsed } : DEFAULT_SETTINGS;
   } catch {
-    return DEFAULT_PROFILES;
+    return DEFAULT_SETTINGS;
   }
 }
 
-/**
- * Persists job profiles array to localStorage.
- */
-export function saveStoredProfiles(profiles: JobProfile[]): void {
+export function saveStoredSettings(settings: AppSettings): void {
   try {
-    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
-  } catch {
-    // Fail-safe catch for quota errors
-  }
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  } catch { /* quota */ }
 }
 
-/**
- * Retrieves active profile ID from localStorage.
- */
-export function getActiveProfileId(): string {
+export function getStoredLogs(): Record<string, DailyLog> {
   try {
-    const id = localStorage.getItem(ACTIVE_PROFILE_KEY);
-    if (id) return id;
-  } catch {
-    // Fail-safe catch
-  }
-  return DEFAULT_PROFILES[0].id;
-}
-
-/**
- * Persists active profile ID to localStorage.
- */
-export function saveActiveProfileId(id: string): void {
-  try {
-    localStorage.setItem(ACTIVE_PROFILE_KEY, id);
-  } catch {
-    // Fail-safe catch
-  }
-}
-
-/**
- * Loads stored daily logs for a specific profile ID.
- */
-export function getStoredLogs(profileId: string): Record<string, DailyLog> {
-  try {
-    const raw = localStorage.getItem(`${LOGS_KEY_PREFIX}${profileId}`);
+    const raw = localStorage.getItem(LOGS_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
     return parsed && typeof parsed === 'object' ? parsed : {};
@@ -100,30 +41,15 @@ export function getStoredLogs(profileId: string): Record<string, DailyLog> {
   }
 }
 
-/**
- * Persists daily logs for a specific profile ID.
- */
-export function saveStoredLogs(profileId: string, logs: Record<string, DailyLog>): void {
+export function saveStoredLogs(logs: Record<string, DailyLog>): void {
   try {
-    localStorage.setItem(`${LOGS_KEY_PREFIX}${profileId}`, JSON.stringify(logs));
-  } catch {
-    // Fail-safe catch
-  }
+    localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
+  } catch { /* quota */ }
 }
 
-/**
- * Clears all stored application data from localStorage.
- */
 export function clearAllStoredData(): void {
   try {
-    localStorage.removeItem(PROFILES_KEY);
-    localStorage.removeItem(ACTIVE_PROFILE_KEY);
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith(LOGS_KEY_PREFIX)) {
-        localStorage.removeItem(key);
-      }
-    });
-  } catch {
-    // Fail-safe catch
-  }
+    localStorage.removeItem(SETTINGS_KEY);
+    localStorage.removeItem(LOGS_KEY);
+  } catch { /* quota */ }
 }

@@ -1,28 +1,23 @@
 import React, { useRef } from 'react';
-import type { JobProfile, DailyLog, Holiday } from '../../types';
-import { calculateDailyEarnings, calculatePaySummary } from '../../utils/calculatePay';
+import type { AppSettings, DailyLog } from '../../types';
+import { calculatePeriodSummary } from '../../utils/calculatePay';
 import { getMonthCalendarDays, formatDateKey } from '../../utils/dateUtils';
-import { getStoredLogs } from '../../utils/storage';
 import { getMonth, getYear, format } from 'date-fns';
 import { Download, FileSpreadsheet, FileJson, Upload, X, Trash2 } from 'lucide-react';
 
 interface Props {
   currentDate: Date;
-  profile: JobProfile;
-  profiles: JobProfile[];
+  settings: AppSettings;
   logs: Record<string, DailyLog>;
-  autoHolidays: Holiday[];
-  onImportData: (data: { profiles: JobProfile[]; allProfileLogs: Record<string, Record<string, DailyLog>> }) => void;
+  onImportData: (data: { settings?: AppSettings; logs: Record<string, DailyLog> }) => void;
   onResetAllData?: () => void;
   onClose: () => void;
 }
 
 export const ExportModal: React.FC<Props> = ({
   currentDate,
-  profile,
-  profiles,
+  settings,
   logs,
-  autoHolidays,
   onImportData,
   onResetAllData,
   onClose
@@ -32,88 +27,59 @@ export const ExportModal: React.FC<Props> = ({
   const year = getYear(currentDate);
   const month = getMonth(currentDate);
   const monthLabel = format(currentDate, 'MMMM yyyy');
-  const allHolidays = [...autoHolidays, ...(profile.customHolidays || [])];
   const monthDays = getMonthCalendarDays(year, month).filter(d => getMonth(d) === month);
+  const sym = settings.currencySymbol || '₱';
 
-  const summary = calculatePaySummary(
+  const summary = calculatePeriodSummary(
     monthDays,
     logs,
-    profile,
-    allHolidays,
     `Full Month - ${monthLabel}`
   );
 
   // Export to CSV
   const handleExportCSV = () => {
-    const sym = profile.currencySymbol || '₱';
     const rows = [
-      ['MYPAY WORK LOG & PAYROLL REPORT'],
-      [`Profile: ${profile.title} (${profile.company})`],
+      ['MYPAY DAILY EARNINGS LOG'],
       [`Period: ${monthLabel}`],
       [`Currency: ${sym}`],
       [''],
-      ['Date', 'Day', 'Status', 'Base Pay', 'OT Hours', 'OT Pay', 'UT Hours', 'UT Deduction', 'Holiday Bonus', 'Total Daily Earned', 'Notes'],
+      ['Date', 'Day', 'Amount Earned', 'Notes'],
     ];
 
     monthDays.forEach(date => {
       const dateStr = formatDateKey(date);
       const log = logs[dateStr];
-      const details = calculateDailyEarnings(date, log, profile, allHolidays);
-      const status = log?.status || 'scheduled';
 
       rows.push([
         dateStr,
         format(date, 'EEEE'),
-        status,
-        details.baseEarned.toFixed(2),
-        (log?.overtimeHours || 0).toString(),
-        details.overtimeEarned.toFixed(2),
-        (log?.undertimeHours || 0).toString(),
-        details.undertimeDeduction.toFixed(2),
-        details.holidayBonus.toFixed(2),
-        details.totalDailyEarned.toFixed(2),
+        (log?.amount || 0).toFixed(2),
         `"${(log?.notes || '').replace(/"/g, '""')}"`
       ]);
     });
 
     rows.push(['']);
-    rows.push(['SUMMARY BREAKDOWN']);
-    rows.push(['Gross Pay', summary.grossPay.toFixed(2)]);
-    rows.push(['Total Deductions', summary.totalDeductions.toFixed(2)]);
-    summary.itemizedDeductions.forEach(d => {
-      rows.push([`  - ${d.name}`, d.amount.toFixed(2)]);
-    });
-    rows.push(['Net Take-Home Pay', summary.netPay.toFixed(2)]);
-    rows.push(['Total Days Rendered', summary.daysRendered.toString()]);
+    rows.push(['SUMMARY']);
+    rows.push(['Total Earned', summary.totalEarned.toFixed(2)]);
+    rows.push(['Days Logged', summary.daysLogged.toString()]);
+    rows.push(['Average per Logged Day', summary.averagePerDay.toFixed(2)]);
 
     const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.join(',')).join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `MyPay_${profile.title.replace(/\s+/g, '_')}_${format(currentDate, 'yyyy-MM')}.csv`);
+    link.setAttribute('download', `MyPay_${format(currentDate, 'yyyy-MM')}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // Export to JSON Backup (includes logs for ALL profiles)
+  // Export to JSON Backup
   const handleExportJSON = () => {
-    // Gather logs for every profile from localStorage
-    const allProfileLogs: Record<string, Record<string, DailyLog>> = {};
-    profiles.forEach(p => {
-      const profileLogs = p.id === profile.id ? logs : getStoredLogs(p.id);
-      if (Object.keys(profileLogs).length > 0) {
-        allProfileLogs[p.id] = profileLogs;
-      }
-    });
-
     const exportData = {
-      version: '1.1',
+      version: '2.0',
       exportedAt: new Date().toISOString(),
-      activeProfileId: profile.id,
-      profiles,
-      allProfileLogs,
-      // Keep legacy "logs" field for backward compatibility
+      settings,
       logs
     };
 
@@ -138,24 +104,14 @@ export const ExportModal: React.FC<Props> = ({
     reader.onload = (event) => {
       try {
         const parsed = JSON.parse(event.target?.result as string);
-        if (parsed.profiles && Array.isArray(parsed.profiles) && parsed.profiles.length > 0) {
-          // Support both v1.1 (allProfileLogs) and v1.0 (flat logs) formats
-          let allProfileLogs: Record<string, Record<string, DailyLog>> = {};
-          if (parsed.allProfileLogs && typeof parsed.allProfileLogs === 'object') {
-            allProfileLogs = parsed.allProfileLogs;
-          } else if (parsed.logs && typeof parsed.logs === 'object') {
-            // Legacy format: assign flat logs to the active profile
-            const targetId = parsed.activeProfileId || parsed.profiles[0].id;
-            allProfileLogs[targetId] = parsed.logs;
-          }
-
-          onImportData({ profiles: parsed.profiles, allProfileLogs });
+        if (parsed.logs && typeof parsed.logs === 'object') {
+          onImportData({ settings: parsed.settings, logs: parsed.logs });
           alert('Data imported successfully!');
           onClose();
         } else {
           alert('Invalid backup file format.');
         }
-      } catch (err) {
+      } catch {
         alert('Failed to parse JSON backup file.');
       }
     };
@@ -177,7 +133,7 @@ export const ExportModal: React.FC<Props> = ({
 
         <div className="modal-body space-y-4 py-4">
           <p className="text-xs text-muted">
-            Export your payroll data to spreadsheet CSV or create/restore a JSON backup file.
+            Export your daily earnings to spreadsheet CSV or create/restore a JSON backup file.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -202,7 +158,7 @@ export const ExportModal: React.FC<Props> = ({
                 </div>
                 <div>
                   <h4 className="font-bold text-sm">JSON Full Backup</h4>
-                  <p className="text-xs text-muted">Download complete backup of profiles & logs</p>
+                  <p className="text-xs text-muted">Download complete backup of settings & daily logs</p>
                 </div>
               </div>
             </div>
@@ -231,7 +187,7 @@ export const ExportModal: React.FC<Props> = ({
 
         <div className="modal-footer flex justify-between items-center pt-3 border-t border-border">
           {onResetAllData ? (
-            <button 
+            <button
               className="btn btn-ghost btn-sm text-danger flex items-center gap-1"
               onClick={() => {
                 if (window.confirm('Are you sure you want to clear all data and reset to a clean state?')) {

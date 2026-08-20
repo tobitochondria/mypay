@@ -1,20 +1,17 @@
 import React, { useRef, useState } from 'react';
-import type { JobProfile } from '../../types';
-import { Download, Upload, Briefcase, RotateCcw, CheckCircle, AlertTriangle } from 'lucide-react';
+import type { AppSettings, DailyLog } from '../../types';
+import { Download, Upload, RotateCcw, CheckCircle, AlertTriangle } from 'lucide-react';
 
 interface Props {
-  activeProfile: JobProfile;
   onOpenExport: () => void;
-  onImportData: (data: { 
-    profiles: JobProfile[]; 
-    logs?: Record<string, any>;
-    allProfileLogs?: Record<string, Record<string, any>>;
+  onImportData: (data: {
+    settings?: AppSettings;
+    logs: Record<string, DailyLog>;
   }) => void;
   onResetAllData: () => void;
 }
 
 export const Header: React.FC<Props> = ({
-  activeProfile,
   onOpenExport,
   onImportData,
   onResetAllData
@@ -24,7 +21,7 @@ export const Header: React.FC<Props> = ({
   const [importMessage, setImportMessage] = useState('');
 
   const handleConfirmReset = () => {
-    if (window.confirm('Are you sure you want to reset and delete all saved profiles, earnings, and work logs? This cannot be undone.')) {
+    if (window.confirm('Are you sure you want to reset and delete all saved settings and daily earnings logs? This cannot be undone.')) {
       onResetAllData();
     }
   };
@@ -39,46 +36,19 @@ export const Header: React.FC<Props> = ({
         const text = event.target?.result as string;
         const parsed = JSON.parse(text);
 
-        // Validate structure: must have profiles array
-        if (!parsed.profiles || !Array.isArray(parsed.profiles) || parsed.profiles.length === 0) {
+        // Validate structure: must have a logs object
+        if (!parsed.logs || typeof parsed.logs !== 'object') {
           setImportStatus('error');
-          setImportMessage('Invalid file: no profiles found. Please select a valid MyPay JSON backup file.');
+          setImportMessage('Invalid file: no daily logs found. Please select a valid MyPay JSON backup file.');
           setTimeout(() => setImportStatus('idle'), 4000);
           return;
         }
 
-        // Validate each profile has basic required fields
-        const validProfiles = parsed.profiles.every((p: any) =>
-          p.id && typeof p.id === 'string' &&
-          p.title && typeof p.title === 'string'
-        );
-
-        if (!validProfiles) {
-          setImportStatus('error');
-          setImportMessage('Invalid file: profile data is malformed or incompatible.');
-          setTimeout(() => setImportStatus('idle'), 4000);
-          return;
-        }
-
-        let allProfileLogs = parsed.allProfileLogs;
-        let logs = parsed.logs;
-
-        // Count logs across profiles
-        let totalLogs = 0;
-        if (allProfileLogs && typeof allProfileLogs === 'object') {
-          Object.values(allProfileLogs).forEach((pLogs: any) => {
-            if (pLogs && typeof pLogs === 'object') {
-              totalLogs += Object.keys(pLogs).length;
-            }
-          });
-        } else if (logs && typeof logs === 'object') {
-          totalLogs = Object.keys(logs).length;
-        }
+        const logCount = Object.keys(parsed.logs).length;
 
         // Confirm with user before replacing data
-        const profileCount = parsed.profiles.length;
         const confirmed = window.confirm(
-          `Import ${profileCount} profile(s) and ${totalLogs} total day log(s)?\n\nThis will replace all your current profiles and work logs.`
+          `Import ${logCount} day log(s)?\n\nThis will replace all your current settings and daily earnings logs.`
         );
 
         if (!confirmed) {
@@ -86,16 +56,15 @@ export const Header: React.FC<Props> = ({
           return;
         }
 
-        onImportData({ 
-          profiles: parsed.profiles, 
-          logs, 
-          allProfileLogs 
+        onImportData({
+          settings: parsed.settings,
+          logs: parsed.logs
         });
 
         setImportStatus('success');
-        setImportMessage(`Successfully imported ${profileCount} profile(s) and ${totalLogs} day log(s)!`);
+        setImportMessage(`Successfully imported ${logCount} day log(s)!`);
         setTimeout(() => setImportStatus('idle'), 3500);
-      } catch (err) {
+      } catch {
         setImportStatus('error');
         setImportMessage('Failed to parse file. Ensure it is a valid MyPay JSON backup file.');
         setTimeout(() => setImportStatus('idle'), 4000);
@@ -128,27 +97,18 @@ export const Header: React.FC<Props> = ({
               MyPay Calculator
             </h1>
             <p className="text-xs text-slate-500 font-normal leading-tight">
-              Personal Salary, Wage & Payday Tracker
+              Daily Earnings Tracker
             </p>
           </div>
         </div>
 
         {/* Right: Desktop Actions Container (hidden lg:flex) */}
         <div id="tour-import-export-actions" className="hidden lg:flex items-center gap-3">
-          {/* Active Profile Pill */}
-          <div className="active-profile-pill">
-            <Briefcase size={14} style={{ color: 'var(--primary)' }} />
-            <span>{activeProfile.title}</span>
-            {activeProfile.company && (
-              <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>({activeProfile.company})</span>
-            )}
-          </div>
-
           {/* Reset Data */}
           <button
             className="btn btn-ghost touch-target"
             onClick={handleConfirmReset}
-            title="Delete all stored profiles and logs"
+            title="Delete all stored settings and logs"
             style={{ color: 'var(--danger)', fontWeight: 600, fontSize: '0.75rem', gap: '0.25rem' }}
           >
             <RotateCcw size={14} />
@@ -177,12 +137,6 @@ export const Header: React.FC<Props> = ({
 
         {/* Right: Mobile & Tablet Actions Container (flex lg:hidden) */}
         <div className="flex lg:hidden items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          {/* Active Profile Pill: Hidden in Mobile Portrait (<640px portrait), Shown in Landscape & Tablet */}
-          <div className="active-profile-pill hidden sm:flex portrait:hidden landscape:flex px-2.5 py-1 text-xs max-w-[140px] sm:max-w-[200px]">
-            <Briefcase size={13} style={{ color: 'var(--primary)' }} />
-            <span className="truncate">{activeProfile.title}</span>
-          </div>
-
           {/* Standalone Action Icon Buttons */}
           <button
             className="btn btn-ghost touch-target p-2"
@@ -241,4 +195,3 @@ export const Header: React.FC<Props> = ({
     </>
   );
 };
-
